@@ -26,7 +26,7 @@ const OrderStatusPage = ({ params }: Props) => {
     notFound();
   }
 
-  const { orders, loading } = useOrders({ status });
+  const { orders, loading, error } = useOrders({ status });
 
   return (
     <div className="space-y-6">
@@ -34,7 +34,7 @@ const OrderStatusPage = ({ params }: Props) => {
         <h1 className="text-2xl font-semibold text-gray-900">{status}</h1>
         <p className="text-sm text-gray-500">Bu sayfada {status.toLowerCase()} siparişleri görüntülersiniz.</p>
       </div>
-      <OrderTable orders={orders} loading={loading} />
+      <OrderTable orders={orders} loading={loading} error={error} />
     </div>
   );
 };

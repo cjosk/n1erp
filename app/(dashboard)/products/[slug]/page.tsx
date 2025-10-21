@@ -24,7 +24,7 @@ const ProductCategoryPage = ({ params }: Props) => {
     notFound();
   }
 
-  const { products, loading } = useProducts(category);
+  const { products, loading, error } = useProducts(category);
 
   return (
     <div className="space-y-6">
@@ -32,7 +32,7 @@ const ProductCategoryPage = ({ params }: Props) => {
         <h1 className="text-2xl font-semibold text-gray-900">{category}</h1>
         <p className="text-sm text-gray-500">{category} kategorisindeki ürünleri görüntüleyin.</p>
       </div>
-      <ProductGrid products={products} loading={loading} />
+      <ProductGrid products={products} loading={loading} error={error} />
     </div>
   );
 };

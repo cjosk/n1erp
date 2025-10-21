@@ -6,9 +6,14 @@ import type { Product } from '@/hooks/useProducts';
 interface Props {
   products: Product[];
   loading?: boolean;
+  error?: string | null;
 }
 
-const ProductGrid = ({ products, loading }: Props) => {
+const ProductGrid = ({ products, loading, error }: Props) => {
+  if (error) {
+    return <div className="glass-card rounded-2xl border border-white/40 p-6 text-sm text-red-500">{error}</div>;
+  }
+
   if (loading) {
     return <div className="glass-card rounded-2xl border border-white/40 p-6 text-sm text-gray-500">Ürünler yükleniyor...</div>;
   }

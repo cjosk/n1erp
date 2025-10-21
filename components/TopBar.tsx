@@ -1,16 +1,29 @@
 'use client';
 
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 import { FiBell, FiSearch, FiLogOut } from 'react-icons/fi';
 import { auth } from '@/lib/firebase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const TopBar = () => {
   const [search, setSearch] = useState('');
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      router.replace('/login');
     } catch (error) {
       console.error('Çıkış başarısız', error);
     }
@@ -34,9 +47,9 @@ const TopBar = () => {
           <FiBell size={20} />
           <span className="absolute -top-1 -right-1 inline-flex h-2.5 w-2.5 rounded-full bg-[#ff7a00]"></span>
         </button>
-        <div className="hidden md:flex flex-col text-sm text-right">
-          <span className="font-semibold text-gray-700">Neonbir Ekibi</span>
-          <span className="text-xs text-gray-500">Admin</span>
+        <div className="hidden flex-col text-right text-sm md:flex">
+          <span className="font-semibold text-gray-700">{currentUser?.displayName ?? 'Neonbir Ekibi'}</span>
+          <span className="text-xs text-gray-500">{currentUser?.email ?? 'Admin'}</span>
         </div>
         <button
           onClick={handleSignOut}

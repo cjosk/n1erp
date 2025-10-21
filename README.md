@@ -4,7 +4,7 @@ Neon1 ERP, Neonbir üretim ve operasyon ekipleri için geliştirilmiş, Next.js 
 
 ## Özellikler
 
-- 🔐 Firebase Authentication ile admin ve ekip girişi
+- 🔐 Firebase Authentication ile admin ve ekip girişi (korumalı dashboard yönlendirmesi)
 - 📊 Dashboard üzerinde sipariş istatistikleri ve durum dağılımı
 - 📦 Firestore tabanlı sipariş yönetimi, durum filtreleme ve detay sayfası
 - 🖼️ Firebase Storage entegrasyonu ile görsel yükleme
@@ -111,7 +111,7 @@ service firebase.storage {
 
 1. Depoyu GitHub'a gönderin ve Vercel hesabınızı bağlayın.
 2. Yeni bir proje oluşturun, bu depoyu seçin.
-3. Build ayarlarını (Next.js) otomatik olarak algılayacaktır.
+3. Proje kök dizinini `.` (deponun kök klasörü) olarak seçtiğinizden emin olun. Depodaki `vercel.json` dosyası framework tespitini garanti altına alır.
 4. Vercel ortam değişkenlerine `.env.local` içindeki Firebase değerlerini ekleyin.
 5. Deploy işlemini başlatın.
 

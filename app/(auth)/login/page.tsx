@@ -1,15 +1,32 @@
 'use client';
 
-import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useEffect, useMemo, useState } from 'react';
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = useMemo(() => {
+    const target = searchParams.get('redirect') ?? '/';
+    return target.startsWith('/') ? target : '/';
+  }, [searchParams]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.replace(redirectPath);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [redirectPath, router]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -17,6 +34,7 @@ const LoginPage = () => {
       setLoading(true);
       setError(null);
       await signInWithEmailAndPassword(auth, email, password);
+      router.replace(redirectPath);
     } catch (err) {
       console.error(err);
       setError('Giriş başarısız. Bilgilerinizi kontrol edin.');

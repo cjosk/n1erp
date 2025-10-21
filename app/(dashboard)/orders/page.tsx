@@ -6,7 +6,7 @@ import OrderTable from '@/components/OrderTable';
 import { useOrders } from '@/hooks/useOrders';
 
 const OrdersPage = () => {
-  const { orders, loading } = useOrders();
+  const { orders, loading, error } = useOrders();
 
   return (
     <div className="space-y-6">
@@ -22,7 +22,7 @@ const OrdersPage = () => {
           <FiPlus /> Yeni Sipariş
         </Link>
       </div>
-      <OrderTable orders={orders} loading={loading} />
+      <OrderTable orders={orders} loading={loading} error={error} />
     </div>
   );
 };

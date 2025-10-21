@@ -8,7 +8,7 @@ import ActivityLog from '@/components/ActivityLog';
 import { useOrders } from '@/hooks/useOrders';
 
 const DashboardPage = () => {
-  const { orders, loading } = useOrders();
+  const { orders, loading, error } = useOrders();
 
   const stats = useMemo(() => {
     const active = orders.filter((order) => order.status !== 'Gönderilen Ürünler').length;
@@ -27,6 +27,10 @@ const DashboardPage = () => {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="glass-card rounded-2xl border border-white/40 p-4 text-sm text-red-500">{error}</div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <SummaryCard title="Aktif Sipariş" value={loading ? '—' : stats.active} icon={<FiPackage size={22} />} />
         <SummaryCard

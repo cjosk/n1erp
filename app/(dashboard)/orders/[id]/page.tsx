@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase';
 import type { Order } from '@/lib/types';
 import StatusBadge from '@/components/StatusBadge';
 import OrderForm from '@/components/OrderForm';
+import { toIsoString } from '@/lib/firestore';
 
 interface Props {
   params: { id: string };
@@ -17,36 +18,47 @@ const OrderDetailPage = ({ params }: Props) => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchOrder = useCallback(async () => {
-    const docRef = doc(db, 'orders', params.id);
-    const snapshot = await getDoc(docRef);
-    if (snapshot.exists()) {
-      const data = snapshot.data();
-      setOrder({
-        id: snapshot.id,
-        productName: data.productName ?? '',
-        customerName: data.customerName ?? '',
-        category: data.category ?? '',
-        price: Number(data.price ?? 0),
-        quantity: Number(data.quantity ?? 1),
-        status: data.status,
-        deliveryDate: data.deliveryDate ?? undefined,
-        franchiseId: data.franchiseId ?? undefined,
-        accessories: data.accessories ?? [],
-        notes: data.notes ?? '',
-        imageUrl: data.imageUrl ?? undefined,
-        createdAt: data.createdAt ?? new Date().toISOString(),
-        updatedAt: data.updatedAt ?? undefined
-      });
-    } else {
+    try {
+      setLoading(true);
+      setError(null);
+      const docRef = doc(db, 'orders', params.id);
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        const data = snapshot.data() as Partial<Order> & Record<string, unknown>;
+        setOrder({
+          id: snapshot.id,
+          productName: typeof data.productName === 'string' ? data.productName : '',
+          customerName: typeof data.customerName === 'string' ? data.customerName : '',
+          category: typeof data.category === 'string' ? data.category : '',
+          price: Number(data.price ?? 0),
+          quantity: Number(data.quantity ?? 1),
+          status: (data.status as Order['status']) ?? 'Çizilmeyi Bekleyenler',
+          deliveryDate: toIsoString(data.deliveryDate) ?? (typeof data.deliveryDate === 'string' ? data.deliveryDate : undefined),
+          franchiseId: typeof data.franchiseId === 'string' ? data.franchiseId : undefined,
+          accessories: Array.isArray(data.accessories) ? (data.accessories as string[]) : [],
+          notes: typeof data.notes === 'string' ? data.notes : '',
+          imageUrl: typeof data.imageUrl === 'string' ? data.imageUrl : undefined,
+          createdAt: toIsoString(data.createdAt) ?? toIsoString((data as Record<string, unknown>).createdAtTimestamp) ?? new Date().toISOString(),
+          updatedAt: toIsoString(data.updatedAt) ?? toIsoString((data as Record<string, unknown>).updatedAtTimestamp)
+        });
+      } else {
+        setOrder(null);
+        setError('Sipariş bulunamadı.');
+      }
+    } catch (err) {
+      console.error('Sipariş detayı getirilemedi', err);
+      setError('Sipariş detayları yüklenirken bir hata oluştu.');
       setOrder(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [params.id]);
 
   useEffect(() => {
-    fetchOrder();
+    void fetchOrder();
   }, [fetchOrder]);
 
   if (loading) {
@@ -54,7 +66,11 @@ const OrderDetailPage = ({ params }: Props) => {
   }
 
   if (!order) {
-    return <div className="glass-card rounded-2xl border border-white/40 p-6 text-gray-500">Sipariş bulunamadı.</div>;
+    return (
+      <div className="glass-card rounded-2xl border border-white/40 p-6 text-sm text-gray-500">
+        {error ?? 'Sipariş bulunamadı.'}
+      </div>
+    );
   }
 
   const total = order.price * (order.quantity ?? 1);
@@ -141,7 +157,15 @@ const OrderDetailPage = ({ params }: Props) => {
             </div>
           </div>
 
-          {editing && <OrderForm order={order} onSuccess={() => { setEditing(false); fetchOrder(); }} />}
+          {editing && (
+            <OrderForm
+              order={order}
+              onSuccess={() => {
+                setEditing(false);
+                void fetchOrder();
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

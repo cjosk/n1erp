@@ -72,6 +72,7 @@ const OrderForm = ({ order, onSuccess }: OrderFormProps) => {
         imageUrl = await getDownloadURL(snapshot.ref);
       }
 
+      const nowIso = new Date().toISOString();
       const payload = {
         productName: values.productName,
         customerName: values.customerName,
@@ -84,7 +85,8 @@ const OrderForm = ({ order, onSuccess }: OrderFormProps) => {
         accessories: values.accessories ?? [],
         notes: values.notes ?? '',
         imageUrl: imageUrl ?? null,
-        updatedAt: new Date().toISOString()
+        updatedAt: nowIso,
+        updatedAtTimestamp: serverTimestamp()
       };
 
       if (order) {
@@ -92,7 +94,8 @@ const OrderForm = ({ order, onSuccess }: OrderFormProps) => {
       } else {
         await addDoc(collection(db, 'orders'), {
           ...payload,
-          createdAt: new Date().toISOString(),
+          createdAt: nowIso,
+          createdAtTimestamp: serverTimestamp(),
           statusHistory: [values.status],
           total: Number(values.price) * Number(values.quantity ?? 1),
           timestamp: serverTimestamp()

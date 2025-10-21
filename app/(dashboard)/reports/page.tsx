@@ -9,7 +9,7 @@ import SummaryCard from '@/components/SummaryCard';
 import { useOrders } from '@/hooks/useOrders';
 
 const ReportsPage = () => {
-  const { orders } = useOrders();
+  const { orders, error } = useOrders();
   const [range, setRange] = useState(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
@@ -59,6 +59,8 @@ const ReportsPage = () => {
       </div>
 
       <DateRangeFilter startDate={range.startDate} endDate={range.endDate} onChange={setRange} />
+
+      {error && <p className="glass-card rounded-2xl border border-white/40 p-4 text-sm text-red-500">{error}</p>}
 
       <div className="grid gap-4 md:grid-cols-3">
         <SummaryCard

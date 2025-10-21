@@ -11,9 +11,10 @@ import type { Order } from '@/lib/types';
 interface OrderTableProps {
   orders: Order[];
   loading?: boolean;
+  error?: string | null;
 }
 
-const OrderTable = ({ orders, loading }: OrderTableProps) => {
+const OrderTable = ({ orders, loading, error }: OrderTableProps) => {
   const [search, setSearch] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
@@ -33,6 +34,14 @@ const OrderTable = ({ orders, loading }: OrderTableProps) => {
       return sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
     });
   }, [orders, search, sortDirection]);
+
+  if (error) {
+    return (
+      <div className="glass-card rounded-2xl border border-white/40 p-6 text-center text-sm text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="glass-card rounded-2xl p-6 text-center text-gray-500">Yükleniyor...</div>;
