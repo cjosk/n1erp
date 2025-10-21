@@ -14,7 +14,7 @@ const LoginPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = useMemo(() => {
-    const target = searchParams.get('redirect') ?? '/';
+    const target = searchParams.get('redirect') ?? '/dashboard';
     return target.startsWith('/') ? target : '/';
   }, [searchParams]);
 
